@@ -4,53 +4,49 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-	public static long power(long x, long p, long mod) {
-		long res = 1;
-		while (p > 0) {
-			if ((p & 1) != 0) {
-				res *= x;
-				res %= mod;
-			}
-			x *= x;
-			x %= mod;
-			p >>= 1;
-		}
-		return res;
-	}
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
-	public static boolean check(long p) {
-		if (p == 2) {
-			return true;
-		}
-		for (long i = 3; i * i <= p; i += 2) {
-			if (p % i == 0) {
-				return false;
-			}
-		}
-		return true;
-	}
+        while (true) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
+            long p = Integer.parseInt(st.nextToken());
+            long a = Integer.parseInt(st.nextToken());
 
-		while (true) {
-			StringTokenizer st = new StringTokenizer(br.readLine());
-			long p = Integer.parseInt(st.nextToken());
-			long a = Integer.parseInt(st.nextToken());
-			if (p == 0) {
-				break;
-			}
-			if (check(p)) {
-				sb.append("no\n");
-				continue;
-			}
-			if (power(a, p, p) == a) {
-				sb.append("yes\n");
-			} else {
-				sb.append("no\n");
-			}
-		}
-		System.out.print(sb);
-	}
+            if (p == 0) break;
+
+            if (isPrime(p)) {
+                sb.append("no\n");
+                continue;
+            }
+
+            if (pow(a, p, p) == a) {
+                sb.append("yes\n");
+            } else {
+                sb.append("no\n");
+            }
+        }
+        System.out.println(sb);
+    }
+
+    static long pow(long x, long n, long mod) {
+        long ret = 1;
+        while (n > 0) {
+            if ((n & 1) == 1) {
+                ret =  ret * x % mod;
+            }
+            x = x * x % mod;
+            n >>= 1;
+        }
+        return ret;
+    }
+
+    static boolean isPrime(long n) {
+        if (n == 2) return true;
+        for (long i = 2; i * i <= n ; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
 }
