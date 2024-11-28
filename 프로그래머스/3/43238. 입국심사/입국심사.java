@@ -1,29 +1,27 @@
-import java.util.*;
-
 class Solution {
     public long solution(int n, int[] times) {
         long answer = 0;
-        Arrays.sort(times);
         
-        long left = 0;
-        long right = (long) times[times.length - 1] * n;
+        long start = 0;
+        long end = 1_000_000_000_000_000L;
         
-        while (left <= right) {
-            long mid = (left + right ) / 2;
-            long sum = 0;
-            
-            for (int i = 0; i < times.length; i++) {
-                sum += mid / times[i];
-            }
-            
-            if (sum < n) {
-                left = mid + 1;
+        while(end > start) {
+            long t = (start + end) / 2;
+            if (isValid(t, n, times)) {
+                end = t;
             } else {
-                right = mid - 1;
-                answer = mid;
+                start = t + 1;
             }
         }
         
-        return answer;
+        return start;
+    }
+    
+    public boolean isValid(long t, int n, int[] times) {
+        long c = 0;
+        for (int time : times) {
+            c += t /time;
+        }
+        return c >= n;
     }
 }
