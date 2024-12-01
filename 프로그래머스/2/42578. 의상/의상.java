@@ -3,33 +3,24 @@ import java.util.*;
 class Solution {
     public int solution(String[][] clothes) {
         int answer = 1;
-
-        Map<String, Integer> map = new HashMap<>();
+        
+        Map<String, List<String>> map = new HashMap<>();
         
         for (String[] clothe : clothes) {
-            String name = clothe[0];
+            String item = clothe[0];
             String category = clothe[1];
-            Clothe clothe1 = new Clothe(name, category);
             
-            Integer count = map.getOrDefault(category, 0);
-
-            map.put(category, ++count);
+            map.putIfAbsent(category, new ArrayList<String>());
+            List<String> itemList = map.get(category);
+            itemList.add(item);
+            map.put(category, itemList);            
         }
-
-        for (Integer value : map.values()) {
-            answer = answer * (value + 1);
+        
+        
+        for (List<String> itemList : map.values()) {
+            answer = answer * (itemList.size() + 1);
         }
         
         return answer - 1;
-    }
-    
-    class Clothe {
-        String name;
-        String category;
-
-        public Clothe(String name, String category) {
-            this.name = name;
-            this.category = category;
-        }
     }
 }
