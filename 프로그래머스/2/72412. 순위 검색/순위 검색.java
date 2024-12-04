@@ -2,37 +2,74 @@ import java.util.*;
 import java.util.Collections;
 import java.util.function.Consumer;
 
+
 class Solution {
     public int[] solution(String[] info, String[] query) {
-        Map<String, List<Integer>> scoreMap = makeMap(info);
-        
         int[] answer = new int[query.length];
         
-        for (int i = 0; i < answer.length; i++) {
-            answer[i] = count(query[i], scoreMap);
+        Map<String, List<Integer>> map = createScoreMap(info);
+        
+        for (int i = 0; i < answer.length ; i++) {
+            answer[i] = count(query[i], map);
         }
+        
         
         return answer;
     }
     
-    public int count(String query, Map<String, List<Integer>> scoreMap) {
+    public Map<String, List<Integer>> createScoreMap(String[] info) {
+        Map<String, List<Integer>> map = new HashMap<>();
+        
+        for (String str : info) {
+            String[] tokens = str.split(" ");
+            int score = Integer.parseInt(tokens[tokens.length - 1]);
+            
+            // tokens 로 query 조건 만들기
+            makeQuery(0, "", tokens, key -> {
+                map.putIfAbsent(key, new ArrayList<>());
+                map.get(key).add(score);
+            });
+        }
+        
+        for (List<Integer> list : map.values()) {
+            Collections.sort(list);
+        }
+        
+        return map;   
+    }
+    
+    private void makeQuery(int index, String prefix, String[] tokens, Consumer<String> action) {
+        if (index == tokens.length - 1) {
+            action.accept(prefix);
+            return;
+        }
+        
+        makeQuery(index + 1, prefix + tokens[index], tokens, action);
+        makeQuery(index + 1, prefix + "-", tokens, action);
+    }
+    
+    private int count(String query, Map<String, List<Integer>> map) {
         String[] tokens = query.split(" (and )?");
-        
         String key = String.join("", Arrays.copyOf(tokens, tokens.length - 1));
-        if (!scoreMap.containsKey(key)) return 0;
         
-        List<Integer> scores = scoreMap.get(key);
+        if (!map.containsKey(key)) return 0;
+        
+        List<Integer> scores = map.get(key);
         
         int score = Integer.parseInt(tokens[tokens.length - 1]);
         
-        return scores.size() - binarySearch(score, scores);
+        int result = binarySearch(score, scores);
+        
+        return scores.size() - result;
     }
     
-    public int binarySearch(int score, List<Integer> scores) {
-        int start = 0;
-        int end = scores.size() - 1;
+    private int binarySearch(int score, List<Integer> scores) {
         
-        while (end > start) {
+        // 이진탐색
+        int start = 0; // 포함
+        int end = scores.size() - 1; // 포함
+        
+        while (start < end) {
             int mid = (start + end) / 2;
             
             if (scores.get(mid) >= score) {
@@ -42,46 +79,9 @@ class Solution {
             }
         }
         
-        if (scores.get(start) < score) {
-            return scores.size();
-        }
+        if (scores.get(start) < score) return scores.size();
+        
         return start;
-    }
-    
-    public Map<String, List<Integer>> makeMap(String[] info) {
-        
-        Map<String, List<Integer>> scoreMap = new TreeMap<>();
-        
-        for (String s : info) {
-            String[] tokens = s.split(" ");
-            int score = Integer.parseInt(tokens[tokens.length - 1]);
-            
-            makeKey(0, "", tokens, key-> {
-                scoreMap.putIfAbsent(key, new ArrayList<>());
-                scoreMap.get(key).add(score);
-            });
-            
-        }
-        for(List<Integer> list : scoreMap.values()) {
-            Collections.sort(list);
-        }
-        
-        // scoreMap.forEach((key, value) -> {
-        //     System.out.printf("%s %s\n", key, value.toString());
-        // });
-        
-        return scoreMap;
-    }
-    
-    public void makeKey(int index, String prefix, String[] tokens, Consumer<String> action) {
-        if (index == tokens.length -1) {
-            action.accept(prefix);
-            return;
-        }
-        
-        makeKey(index + 1, prefix + tokens[index], tokens, action);
-        makeKey(index + 1, prefix + "-", tokens, action);
         
     }
-    
 }
